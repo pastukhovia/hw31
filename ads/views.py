@@ -4,22 +4,21 @@ from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import UpdateView, ListView
-from rest_framework.generics import RetrieveAPIView, UpdateAPIView, DestroyAPIView, CreateAPIView
+from rest_framework.generics import RetrieveAPIView, UpdateAPIView, DestroyAPIView, CreateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 
 from hw28.settings import TOTAL_ON_PAGE
 from .models import Ad
 from .permissions import IsOwner, IsAdminOrModerator
-from .serializers import AdRetrieveSerializer, AdUpdateSerializer, AdDestroySerializer, AdCreateSerializer
+from .serializers import AdRetrieveSerializer, AdUpdateSerializer, AdDestroySerializer, AdCreateSerializer, \
+    AdListSerializer
 
 
-class AdListView(ListView):
-    model = Ad
+class AdListView(ListAPIView):
     queryset = Ad.objects.order_by('-price')
+    serializer_class = AdListSerializer
 
     def get(self, request, *args, **kwargs):
-        super().get(request, *args, **kwargs)
-
         cat = request.GET.get('cat', None)
         if cat:
             self.queryset = self.queryset.filter(category=cat)
@@ -38,26 +37,7 @@ class AdListView(ListView):
             price_q = Q(price__gte=price_from) & Q(price__lte=price_to)
             self.queryset = self.queryset.filter(price_q)
 
-        paginator = Paginator(self.queryset, TOTAL_ON_PAGE)
-        page = request.GET.get('page')
-        page_obj = paginator.get_page(page)
-
-        items = [{
-            "id": ad.id,
-            "name": ad.name,
-            "author_id": ad.author.id,
-            "price": ad.price
-        }
-            for ad in page_obj
-        ]
-
-        response = {
-            'total': paginator.count,
-            'num_pages': paginator.num_pages,
-            'items': items
-        }
-
-        return JsonResponse(response, safe=False)
+        return super().get(request, *args, **kwargs)
 
 
 class AdDetailView(RetrieveAPIView):

@@ -21,6 +21,12 @@ class AdSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class AdListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ad
+        fields = ['id', 'name', 'author', 'price']
+
+
 class AdRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ad

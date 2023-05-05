@@ -11,7 +11,7 @@ class Ad(models.Model):
         verbose_name_plural = 'Объявления'
 
     name = models.CharField(max_length=50)
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     price = models.IntegerField(validators=[MinValueValidator(0)])
     desc = models.CharField(max_length=1000, null=True)
     is_published = models.BooleanField(default=False)
